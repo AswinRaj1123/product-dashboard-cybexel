@@ -11,3 +11,16 @@ class RegisterView(APIView):
             return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['name'] = user.name
+        token['email'] = user.email
+        return token
+
+class LoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

@@ -1,9 +1,13 @@
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer
+from rest_framework import generics
+from .serializers import RegisterSerializer, UserSerializer
+from .models import User
 
 class RegisterView(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -24,3 +28,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
